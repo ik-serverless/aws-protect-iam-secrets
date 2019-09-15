@@ -6,12 +6,11 @@ const
 const
     { provider } = require("./lib/provider"),
     { ok, extractUsers } = require("./lib/utils"),
-    { users, accessKeyAnalyze, deactivateKey } = require("./lib/iam"),
+    { users, accessKeyAnalyze, deactivateKey, deleteKey } = require("./lib/iam"),
     config = require("./lib/config");
 
 const handler = async (event, ctx) => {
     Log.debug(`Event: ${JSON.stringify(event)}`);
-    var result = [];
     let userData = await users(provider, {});
     let extractedUsers = extractUsers(userData);
     Log.info(`Users under review: ${extractedUsers}`);
@@ -31,7 +30,7 @@ const handler = async (event, ctx) => {
                 deleteSecrets.push(e);
             }
         });
-    };
+    }
 
     for (let el of deactivateSecrets) {
         Log.info(`deactivate key: ${JSON.stringify(el)}`);
@@ -45,7 +44,7 @@ const handler = async (event, ctx) => {
     for (let el of deleteSecrets) {
         Log.info(`delete key: ${JSON.stringify(el)}. Delete ${config.delete}`);
         if (config.delete) {
-            await deleteKeys(provider, {
+            await deleteKey(provider, {
                 AccessKeyId: el.accessKeyId,
                 UserName: el.userName
             });
